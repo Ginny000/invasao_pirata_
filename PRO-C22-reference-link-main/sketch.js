@@ -4,6 +4,8 @@ const Bodies = Matter.Bodies;
 const Constraint = Matter.Constraint;
 var engine, world, backgroundImg;
 var balls = []
+var boat
+var  boats = []
 
 var canvas, angle, tower, ground, cannon;
 var score = 0;
@@ -46,10 +48,12 @@ function draw() {
   image(towerImage,tower.position.x, tower.position.y, 160, 310);
   pop();
 
+  showBoats()
+
   for(var i = 0; i < balls.length;i++) {
     showCannonBalls(balls [i], i)
+    colideBoats(i)
   }
-
   cannon.display()
 }
 
@@ -73,3 +77,43 @@ function keyReleased() {
       ball.display()
     }
   }
+
+
+function showBoats() {
+   if (boats.length > 0) {
+     if (boats [boats.length - 1].body.position.x < width - 300) {
+       var positions = [-40, -50, -70, -20]
+       var position = random (positions)
+       boat = new Boat(width -79, height -60, 170, 170, position);
+       boats.push(boat)
+     } 
+     
+     for (var i = 0; i < boats.length; i++) {
+       if(boats[i]) {
+        Matter.Body.setVelocity(boat.body,{x: -0.9, y: 0});
+       
+       boats[i].display()
+     } else {
+       boats[i]
+      } }
+   }
+   
+   else {
+    boat = new Boat(width -79, height -60, 170, 170, -80);
+
+    boats.push(boat)
+   }
+}
+
+ function colideBoats(index) {
+  for (var i = 0; i < boats.length; i++) {
+    if (balls[index]!== undefined&& boats[i]!== undefined){
+      var collision = Matter.SAT.collides(balls[index].body, boats[i].body)
+      if (collision.collided) {
+        boats[i].remove(i)
+        Matter.World.remove(world, balls[index].body)
+        delete balls[index]
+      }
+    }
+  }
+ }
